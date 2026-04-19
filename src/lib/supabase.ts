@@ -13,6 +13,14 @@ export function getSupabaseClient() {
   return _client;
 }
 
+// Server-side admin client using service role key (never exposed to browser)
+export function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
+
 // Convenience export for client components
 export const supabase = {
   auth: {
