@@ -1,0 +1,136 @@
+{
+  "_meta": {
+    "format": "Kynvo Marketing Artifact",
+    "product": "ReadMeForge",
+    "url": "https://readmeforge.veridux.ai",
+    "brand": "Veridux Labs",
+    "last_updated": "2026-04-14"
+  },
+  "product_name": "ReadMeForge",
+  "tagline": "Professional READMEs in seconds. No API costs. No setup.",
+  "value_proposition": "ReadMeForge analyzes any public GitHub repository — detecting frameworks, package managers, CI configuration, Docker setup, and tooling — and generates a professional, structured README complete with relevant badges (license, framework, tests, Docker) in seconds. Template-driven engine means zero API costs and instant results. Supabase authentication and README history dashboard included.",
+  "target_audience": {
+    "primary": {
+      "segment": "Open source maintainers",
+      "description": "Developers actively maintaining OSS projects who lack bandwidth for documentation but know a poor README hurts adoption and contribution rates",
+      "pain_severity": "high",
+      "acquisition_channels": ["GitHub", "Hacker News", "OSS Discord communities", "r/opensource"]
+    },
+    "secondary": {
+      "segment": "Indie hackers and side project developers",
+      "description": "Builders shipping fast who treat documentation as a last step; want professional presentation without documentation effort",
+      "pain_severity": "medium",
+      "acquisition_channels": ["IndieHackers.com", "X/Twitter #buildinpublic", "Product Hunt", "Hacker News"]
+    },
+    "tertiary": {
+      "segment": "Bootcamp graduates building portfolios",
+      "description": "New developers with 10–20 GitHub repos from coursework or projects; each repo needs a README; writing them manually is tedious and time-consuming",
+      "pain_severity": "high",
+      "acquisition_channels": ["LinkedIn", "bootcamp alumni Discord servers", "r/learnprogramming", "YouTube tutorials"]
+    }
+  },
+  "pain_points": [
+    "Writing a README from scratch for every project is repetitive and time-consuming",
+    "Most developers don't know what a 'good' README should contain or how to structure it",
+    "Badges require manual configuration of shield.io URLs and are easy to get wrong",
+    "AI chat-based README generators require you to describe your project — ReadMeForge reads it",
+    "Existing tools produce generic output that doesn't reflect the actual tech stack",
+    "Portfolio repos with missing or minimal READMEs damage impression during hiring",
+    "OSS projects without clear setup instructions lose potential contributors at the first step"
+  ],
+  "key_features": [
+    {
+      "name": "GitHub URL analysis",
+      "description": "Paste any public GitHub repository URL — ReadMeForge fetches and analyzes the codebase structure without requiring authentication or cloning"
+    },
+    {
+      "name": "Framework and stack detection",
+      "description": "Automatically identifies frameworks (Next.js, React, Express, FastAPI, Django, etc.), package managers (npm, yarn, pnpm, pip, poetry), and runtime versions"
+    },
+    {
+      "name": "Auto-generated badge suite",
+      "description": "Produces correct shield.io badges for license, primary framework, Docker status, test runner, and deployment platform based on detected stack"
+    },
+    {
+      "name": "Structured README sections",
+      "description": "Generates Overview, Features, Tech Stack, Getting Started, Prerequisites, Installation, Usage, Contributing, and License sections based on what is actually present in the repo"
+    },
+    {
+      "name": "Zero API costs",
+      "description": "Template-driven generation engine — no LLM API call per README means instant results with no rate limits or cost-per-generation"
+    },
+    {
+      "name": "README history dashboard",
+      "description": "Supabase-backed authentication (magic link) with a personal dashboard showing all previously generated READMEs, filterable by repo"
+    },
+    {
+      "name": "Viral attribution badge",
+      "description": "'Generated with ReadMeForge' badge embedded in output — links back to product, creating organic distribution on GitHub"
+    }
+  ],
+  "pricing_model": {
+    "tiers": [
+      {
+        "name": "Free",
+        "price_monthly": 0,
+        "limits": "5 README generations per month, full output, Supabase history (last 5 entries)",
+        "target": "Casual users, bootcamp students, one-time explorers"
+      },
+      {
+        "name": "Pro",
+        "price_monthly": 6,
+        "limits": "Unlimited generations, full history, PDF export, custom badge sets, priority queue",
+        "target": "Active OSS maintainers and indie hackers with multiple projects"
+      },
+      {
+        "name": "Team",
+        "price_monthly": 18,
+        "limits": "Team workspaces, bulk generation via API, org-level history, Slack notifications",
+        "target": "Engineering teams standardizing documentation across multiple repos"
+      }
+    ],
+    "model_notes": "Low friction free tier designed for viral GitHub distribution. Pro price point ($6) is below psychological resistance for developer tools. Team tier targets documentation standardization use case."
+  },
+  "competitive_advantages": [
+    "Zero API costs per generation — competitors using GPT-4 or Claude have cost-per-call that forces free tier restrictions",
+    "Reads real codebase structure — output is specific to the actual repo, not generic boilerplate",
+    "Auto-generates correct badges without manual shield.io URL construction",
+    "Supabase auth with magic link — no password friction, README history dashboard included in free tier",
+    "Viral loop built in — 'Generated with ReadMeForge' badge drives organic GitHub discovery",
+    "Veridux integration: RepoLens identifies repos with poor READMEs and routes them directly to ReadMeForge"
+  ],
+  "competitive_landscape": {
+    "primary_competitors": ["readme.so", "GitHub Copilot (chat-based README writing)", "ReadMe.io", "manual writing"],
+    "key_differentiator_vs_competitors": "Competitors either require manual template filling (readme.so) or free-form AI prompting (Copilot). ReadMeForge reads the repo and writes the README — no input required beyond the URL."
+  },
+  "cross_promotion_targets": [
+    {
+      "product": "RepoLens",
+      "url": "https://repolens.veridux.ai",
+      "synergy": "RepoLens health score flags repos with missing or low-quality READMEs and surfaces a direct CTA to ReadMeForge — closes the loop between 'diagnosis' and 'fix'"
+    },
+    {
+      "product": "AgenticNode",
+      "url": "https://agenticnode.io",
+      "synergy": "ReadMeForge as an AgenticNode workflow node: trigger README generation on every new repository creation or on a weekly schedule for active repos"
+    },
+    {
+      "product": "APIGhost",
+      "url": "https://apighost.veridux.ai",
+      "synergy": "Natural upsell: ReadMeForge generates the project README → prompt users to 'also generate your API reference docs with APIGhost'"
+    },
+    {
+      "product": "Kynvo",
+      "url": "https://kynvo.ai",
+      "synergy": "Kynvo runs ReadMeForge's lifecycle email campaigns — onboarding series, free-to-pro upgrade sequences, re-engagement for inactive users"
+    },
+    {
+      "product": "Veridux.ai",
+      "url": "https://veridux.ai",
+      "synergy": "Portfolio homepage cross-link; Veridux newsletter covers ReadMeForge launch and feature updates; joint 'Veridux developer stack' positioning"
+    }
+  ],
+  "gtm_stage": "pre-launch",
+  "estimated_tam": "100M+ GitHub repositories; 25M+ active GitHub developers; 4M+ OSS projects created annually",
+  "launch_readiness_score": 76
+}
