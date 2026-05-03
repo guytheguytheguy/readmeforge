@@ -23,5 +23,9 @@ export async function createCheckoutSession(email: string): Promise<string> {
   }
 
   const data = await res.json();
-  return data.data?.checkout?.url as string;
+  const checkoutUrl = data.data?.checkout?.url as string | undefined;
+  if (!checkoutUrl) {
+    throw new Error("Paddle did not return a checkout URL.");
+  }
+  return checkoutUrl;
 }
