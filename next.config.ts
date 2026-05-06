@@ -3,8 +3,13 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   eslint: { ignoreDuringBuilds: true },
-  // Silence monorepo lockfile warning — this app's root is its own directory
-  outputFileTracingRoot: path.join(__dirname),
+  // Point to monorepo root for output file tracing
+  outputFileTracingRoot: path.join(__dirname, "../../.."),
+  webpack: (config, { isServer }) => {
+    // Use memory cache to avoid Windows atomic rename failures on the pack files
+    config.cache = { type: "memory" };
+    return config;
+  },
 };
 
 export default nextConfig;
