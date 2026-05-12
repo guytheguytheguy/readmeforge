@@ -6,6 +6,22 @@ export const metadata: Metadata = {
   description:
     "Generate professional README files for any GitHub repository in seconds. Analyzes your codebase and creates structured, badge-rich documentation automatically.",
   keywords: ["readme generator", "github", "documentation", "open source", "developer tools"],
+  metadataBase: new URL("https://readmeforge.veridux.ai"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "ReadMeForge — AI-Powered README Generator",
+    description: "Generate professional README files for any GitHub repository in seconds. Analyzes your codebase and creates structured, badge-rich documentation automatically.",
+    url: "https://readmeforge.veridux.ai",
+    siteName: "ReadMeForge",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ReadMeForge — AI-Powered README Generator",
+    description: "Generate professional README files for any GitHub repository in seconds. Analyzes your codebase and creates structured, badge-rich documentation automatically.",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
