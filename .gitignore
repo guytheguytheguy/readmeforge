@@ -38,3 +38,10 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# Added by git-hygiene
+.env.*
+__pycache__/
+dist/
+.vercel/
+*.log
