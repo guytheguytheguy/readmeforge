@@ -1,0 +1,76 @@
+# ReadMeForge — Changelog
+
+All notable changes to ReadMeForge are recorded here in reverse-chronological order.
+Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/readmeforge/dev`).
+
+---
+
+## 2026-05-24
+
+### Added
+- `product-and-marketing/competitive-analysis.md` — full competitor profile vs. readme.so, ReadmeAI, GitDocs, AutoReadme, and WriteReadme (f6780fa)
+- `product-and-marketing/positioning.md`, `target-audience.md`, `value-proposition.md` — complete GTM foundation (5cf3218)
+
+---
+
+## 2026-05-21
+
+### Changed
+- Daily sync and git hygiene pass; no functional changes (e19ecf1)
+
+---
+
+## 2026-05-20
+
+### Added
+- OG / Twitter card metadata on all pages (`<og:image>`, `twitter:card`) (48e387b)
+- Canonical URL tags on homepage, pricing, dashboard, auth pages
+
+### Fixed
+- Webpack cache atomic-rename failure on Windows (`outputFileTracingRoot` + `cacheHandler` config) (c8b777c)
+- Paddle checkout throws on missing URL instead of returning `undefined` — prevents silent 500s (58fa8a3)
+
+---
+
+## 2026-05-18
+
+### Added
+- Vitest unit-test suite — 55 tests covering `github.ts` fetcher and `readme-generator.ts` (e5fd0db)
+- Test coverage script (`npm run coverage`) — readiness score bump 62→67
+
+---
+
+## 2026-05-17
+
+### Added
+- `robots.ts` and `sitemap.ts` — SEO foundation for all routes (2e2fe53)
+- `marketing/` directory with brand assets and strategy docs
+- `.gitignore` fixes for Windows build artifacts
+
+---
+
+## 2026-05-16
+
+### Fixed
+- Paddle webhook signature validation corrected — HMAC comparison was using wrong encoding (e31a994)
+- Generation tracking row inserted correctly after successful README output
+
+---
+
+## 2026-05-15
+
+### Fixed
+- `outputFileTracingRoot` warning resolved for monorepo build (1209560)
+
+---
+
+## Initial Build (prior to 2026-05-15)
+
+- Next.js 15 App Router scaffold with TypeScript strict mode
+- `/api/generate` — GitHub repo analysis + template-driven README generation
+- `/api/checkout` — Paddle checkout session creation
+- `/api/webhook` — Paddle webhook handler with signature validation
+- Supabase auth integration (`/auth`, `/dashboard`)
+- Free-tier monthly limit enforcement (5 READMEs/month)
+- Pricing page with Paddle upgrade flow
+- `/docs` page with usage guide
