@@ -5,6 +5,15 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-05-31
+
+### Verified
+- Build confirmed clean: `npm run build` exits 0, 12 routes, no TypeScript errors (P0 resolved)
+- 55 vitest unit tests passing
+- Readiness: 79/G2 — remaining blockers are manual Vercel env var updates (SUPABASE_SERVICE_ROLE_KEY, Paddle keys)
+
+---
+
 ## 2026-05-24
 
 ### Added
