@@ -5,6 +5,20 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-06-21
+
+### Fixed
+- Supabase RLS `auth_rls_initplan` performance warnings on `generations` and `subscriptions` tables — wrapped `auth.uid()` and `auth.role()` in `(SELECT ...)` so Postgres evaluates them once per query, not once per row (migration `fix_rls_initplan_performance`)
+
+### Verified
+- Build PASS: 11 routes, 0 TypeScript errors, exit 0
+- 55 vitest unit tests passing
+- Vercel latest deployment READY (dpl_AuV7HuR1YZjU65ZuS8svEqFSRfsW)
+- Supabase project ACTIVE_HEALTHY (gkkwgypqnvlytpxehojx, us-east-1, Postgres 17)
+- Readiness: 80/G2 (up from 79) — blockers remain manual (SUPABASE_SERVICE_ROLE_KEY + Paddle env vars in Vercel)
+
+---
+
 ## 2026-06-01
 
 ### Verified
