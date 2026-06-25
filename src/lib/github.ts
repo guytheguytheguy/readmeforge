@@ -36,25 +36,42 @@ export async function fetchRepoInfo(repoUrl: string): Promise<RepoInfo> {
   }
   const repoData = await repoRes.json();
 
-  // Fetch root file tree
+  // Fetch full recursive file tree (needed to detect .github/workflows/, etc.)
   const treeRes = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/git/trees/${repoData.default_branch}`,
+    `https://api.github.com/repos/${owner}/${repo}/git/trees/${repoData.default_branch}?recursive=1`,
     { headers }
   );
   const treeData = treeRes.ok ? await treeRes.json() : { tree: [] };
-  const files: string[] = (treeData.tree || []).map((f: { path: string }) => f.path);
+  const files: string[] = (treeData.tree || [])
+    .filter((f: { type: string }) => f.type === "blob")
+    .map((f: { path: string }) => f.path);
 
   // Detect tooling from file list
   const hasTests = files.some(
     (f) =>
-      f.includes("test") ||
-      f.includes("spec") ||
+      f.includes(".test.") ||
+      f.includes(".spec.") ||
+      f.includes("__tests__") ||
       f === "jest.config.js" ||
-      f === "vitest.config.ts"
+      f === "jest.config.ts" ||
+      f === "vitest.config.ts" ||
+      f === "vitest.config.js" ||
+      f === "pytest.ini" ||
+      f === "pyproject.toml" ||
+      f.startsWith("cypress/") ||
+      f === "playwright.config.ts" ||
+      f === "playwright.config.js"
   );
-  const hasDocker = files.some((f) => f === "Dockerfile" || f === "docker-compose.yml");
+  const hasDocker = files.some(
+    (f) => f === "Dockerfile" || f === "docker-compose.yml" || f === "docker-compose.yaml"
+  );
   const hasCi = files.some(
-    (f) => f.startsWith(".github/workflows") || f === ".travis.yml" || f === ".circleci"
+    (f) =>
+      f.startsWith(".github/workflows/") ||
+      f === ".travis.yml" ||
+      f.startsWith(".circleci/") ||
+      f === "Jenkinsfile" ||
+      f.startsWith(".gitlab-ci")
   );
 
   // Fetch package.json if present

@@ -67,6 +67,9 @@ export default function HomePage() {
           <span className="font-bold text-xl">ReadMeForge</span>
         </div>
         <nav className="flex items-center gap-6">
+          <a href="/docs" className="text-gray-400 hover:text-white transition-colors text-sm">
+            Docs
+          </a>
           <a href="/pricing" className="text-gray-400 hover:text-white transition-colors text-sm">
             Pricing
           </a>

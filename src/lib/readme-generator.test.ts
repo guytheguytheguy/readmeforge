@@ -273,7 +273,8 @@ describe("install and run command generation", () => {
     const readme = generateReadme(
       makeInfo({ files: ["package-lock.json", ".env.local.example"] })
     );
-    expect(readme).toContain("cp .env.example .env.local");
+    // Uses the actual filename found (.env.local.example) not the hardcoded .env.example
+    expect(readme).toContain("cp .env.local.example .env.local");
   });
 
   it("omits env copy command when no .env.example present", () => {

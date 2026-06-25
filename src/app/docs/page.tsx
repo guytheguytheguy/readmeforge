@@ -1,10 +1,21 @@
 export default function DocsPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
-      <header className="border-b border-gray-800 px-6 py-4">
-        <a href="/" className="font-bold text-xl flex items-center gap-2 w-fit">
+      <header className="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+        <a href="/" className="font-bold text-xl flex items-center gap-2">
           <span>📄</span> ReadMeForge
         </a>
+        <nav className="flex items-center gap-6">
+          <a href="/pricing" className="text-gray-400 hover:text-white transition-colors text-sm">
+            Pricing
+          </a>
+          <a
+            href="/auth"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Sign In
+          </a>
+        </nav>
       </header>
 
       <main className="max-w-3xl mx-auto px-6 py-16">

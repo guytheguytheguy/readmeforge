@@ -81,10 +81,14 @@ function buildInstallSection(info: RepoInfo, pm: string, framework: string): str
   const buildCmd = getRunCmd(pm, "build");
   const testCmd = info.hasTests ? `\n\n# Run tests\n${getRunCmd(pm, "test")}` : "";
 
-  const envSetup =
-    info.files.includes(".env.example") || info.files.includes(".env.local.example")
-      ? `\n\n# Copy env file and fill in values\ncp .env.example .env.local`
-      : "";
+  const envSource = info.files.includes(".env.example")
+    ? ".env.example"
+    : info.files.includes(".env.local.example")
+    ? ".env.local.example"
+    : null;
+  const envSetup = envSource
+    ? `\n\n# Copy env file and fill in values\ncp ${envSource} .env.local`
+    : "";
 
   const dockerAlt = info.hasDocker
     ? `\n\n### Docker\n\n\`\`\`bash\ndocker compose up --build\n\`\`\``
@@ -120,15 +124,30 @@ ${buildCmd}${hasStart ? `\n${getRunCmd(pm, "start")}` : ""}${testCmd}
 }
 
 function buildProjectStructure(info: RepoInfo): string {
-  const topLevel = info.files
-    .filter((f) => !f.includes("/") || f.split("/").length === 2)
-    .slice(0, 20);
+  if (info.files.length === 0) return "";
+
+  // Extract top-level names (unique root files + dirs)
+  const seen = new Set<string>();
+  const topLevel: string[] = [];
+  for (const f of info.files) {
+    const root = f.split("/")[0];
+    if (!seen.has(root)) {
+      seen.add(root);
+      topLevel.push(root);
+    }
+    if (topLevel.length >= 20) break;
+  }
 
   if (topLevel.length === 0) return "";
 
-  const tree = topLevel
-    .map((f) => `├── ${f}`)
-    .slice(0, 15)
+  const entries = topLevel.slice(0, 15);
+  const tree = entries
+    .map((name, i) => {
+      const prefix = i === entries.length - 1 ? "└──" : "├──";
+      // Mark as directory if any file has this as a path prefix
+      const isDir = info.files.some((f) => f.startsWith(name + "/"));
+      return `${prefix} ${name}${isDir ? "/" : ""}`;
+    })
     .join("\n");
 
   return `\n## Project Structure\n\n\`\`\`\n${tree}\n\`\`\`\n`;

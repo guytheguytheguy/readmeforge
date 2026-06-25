@@ -109,10 +109,15 @@ This gives instant results with zero hallucination risk.
 
 ---
 
+## Rate Limiting
+
+- **Authenticated users**: 5 READMEs/month (enforced via Supabase `generations` count)
+- **Anonymous users**: 3 READMEs/hour per IP (in-process `Map` with TTL, implemented 2026-06-25)
+  - Note: best-effort only — won't persist across serverless cold starts or multiple instances
+
 ## Outstanding Gaps
 
 | Priority | Gap | Action |
 |----------|-----|--------|
 | P0 | Paddle env vars not set in Vercel | MANUAL: Set `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRO_PRICE_ID` in Vercel dashboard |
 | P1 | Supabase `SUPABASE_SERVICE_ROLE_KEY` — verify correct project | MANUAL: Verify Vercel env var points to `gkkwgypqnvlytpxehojx` |
-| P2 | Anonymous users bypass free-tier limit | Consider IP-based rate limiting for unauthenticated requests |

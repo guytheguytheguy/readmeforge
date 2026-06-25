@@ -5,6 +5,28 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-06-25
+
+### Fixed
+- `github.ts`: Switched to recursive GitHub tree fetch (`?recursive=1`) so CI/CD files in `.github/workflows/` are detected correctly (non-recursive fetch only returned the root entry `.github`, not the workflow files)
+- `github.ts`: Fixed `.circleci` CI detection — was checking `f === ".circleci"` (never matches since it's a directory), now uses `f.startsWith(".circleci/")`. Added `Jenkinsfile` and `.gitlab-ci` patterns.
+- `github.ts`: Added `docker-compose.yaml` detection alongside `docker-compose.yml` (both variants accepted)
+- `github.ts`: Improved test detection — replaced broad `f.includes("test")` with precise patterns (`.test.`, `.spec.`, `__tests__`, config files, `playwright.config.*`) to avoid false positives from filenames like `testimonials.md`
+- `readme-generator.ts`: Fixed `.env.local.example` copy command — was hardcoded to `cp .env.example .env.local`; now uses the actual filename found
+- `readme-generator.ts`: Improved `buildProjectStructure` — now deduplicates by root directory (shows `src/` once instead of each file), marks directories with trailing `/`, uses proper `├──`/`└──` connectors
+- `paddle.ts`: Removed module-level non-null assertions on env vars (caused confusing build-time crashes when Paddle not configured); env vars now validated lazily at call time with descriptive error messages
+
+### Added
+- `api/generate/route.ts`: In-process IP-based rate limiter for anonymous (unauthenticated) requests — 3 READMEs/hour per IP. Closes the known gap where anonymous users bypassed all rate limiting.
+- Navigation: Added "Docs" link to homepage and pricing page headers; added Pricing/Sign In to docs page header (all pages now have consistent nav)
+- `sitemap.ts`: Added `/docs` route (was missing, despite the page existing)
+
+### Verified
+- TypeScript: 0 errors (`npx tsc --noEmit`)
+- Tests: 55 vitest unit tests passing (1 test updated for corrected `.env.local.example` copy command)
+
+---
+
 ## 2026-06-21
 
 ### Fixed

@@ -1,19 +1,22 @@
-export const PADDLE_VENDOR_ID = process.env.PADDLE_VENDOR_ID!;
-export const PADDLE_API_KEY = process.env.PADDLE_API_KEY!;
-export const PADDLE_PRO_PRICE_ID = process.env.PADDLE_PRO_PRICE_ID!;
-export const PADDLE_WEBHOOK_SECRET = process.env.PADDLE_WEBHOOK_SECRET!;
-
 export async function createCheckoutSession(email: string): Promise<string> {
+  const apiKey = process.env.PADDLE_API_KEY;
+  const priceId = process.env.PADDLE_PRO_PRICE_ID;
+
+  if (!apiKey) throw new Error("Paddle is not configured (PADDLE_API_KEY missing).");
+  if (!priceId) throw new Error("Paddle is not configured (PADDLE_PRO_PRICE_ID missing).");
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://readmeforge.veridux.ai";
+
   const res = await fetch("https://api.paddle.com/transactions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${PADDLE_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      items: [{ price_id: PADDLE_PRO_PRICE_ID, quantity: 1 }],
+      items: [{ price_id: priceId, quantity: 1 }],
       customer: { email },
-      checkout: { url: process.env.NEXT_PUBLIC_APP_URL + "/dashboard" },
+      checkout: { url: appUrl + "/dashboard" },
     }),
   });
 
