@@ -5,6 +5,25 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-07-13
+
+### Fixed
+- `next.config.ts` (606364d): removed broken `outputFileTracingRoot` pointing 3 directories up at the monorepo root — same bug class already confirmed to cause silent prod build failures in envshield (path traversal breaks when `vercel --prod` deploys only the `dev/` subdirectory). Fix was already sitting uncommitted in the working tree; committed, pushed, and deployed.
+- **Critical**: `SUPABASE_SERVICE_ROLE_KEY` in Vercel (all environments) was set to the service_role key for a *different* Supabase project (headerguard, `kyscibpwchcvsvkgkfea`) instead of readmeforge's dedicated project (`gkkwgypqnvlytpxehojx`) — `NEXT_PUBLIC_SUPABASE_URL`/anon key were already correct, so this was a silent cross-project credential mismatch on all server-side Supabase calls. Corrected across Development, Preview, and Production.
+
+### Verified
+- Build PASS: 12 routes, 0 TypeScript errors, exit 0
+- Tests: 55 vitest unit tests passing
+- Deployed via `vercel --prod`: dpl_2hvAMEuRjobsmh35YRxrjZPi1QBX READY, aliased to readmeforge.veridux.ai
+- Live: `/` 200, `/pricing` 200, `/docs` 200
+- projects.json synced: score 80→88
+
+### Still Blocked (manual action required)
+- `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRO_PRICE_ID` not set in Vercel (values must come from the Paddle dashboard — no Paddle MCP/dashboard access available this session)
+- Paddle checkout not E2E validated end-to-end
+
+---
+
 ## 2026-07-08
 
 ### Verified (daily audit)
