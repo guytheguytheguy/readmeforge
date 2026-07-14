@@ -29,7 +29,16 @@ export async function fetchRepoInfo(repoUrl: string): Promise<RepoInfo> {
   if (process.env.GITHUB_TOKEN) headers["Authorization"] = `Bearer ${process.env.GITHUB_TOKEN}`;
 
   // Fetch repo metadata
-  const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
+  let repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
+
+  // A misconfigured/expired GITHUB_TOKEN would otherwise hard-fail every request.
+  // GitHub allows unauthenticated reads of public repos (just at a lower rate limit),
+  // so fall back to an unauthenticated request instead of failing the whole flow.
+  if (repoRes.status === 401 && headers["Authorization"]) {
+    delete headers["Authorization"];
+    repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
+  }
+
   if (!repoRes.ok) {
     if (repoRes.status === 404) throw new Error("Repository not found. Make sure it's public.");
     throw new Error(`GitHub API error: ${repoRes.status}`);
