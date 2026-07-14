@@ -5,6 +5,24 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-07-14
+
+### Fixed
+- `src/lib/github.ts` (ca22c5d): `fetchRepoInfo` now retries once without the `Authorization` header when the initial GitHub API request returns 401, instead of hard-failing every `/api/generate` call. GitHub allows unauthenticated reads of public repos (at a lower rate limit), so a misconfigured/expired `GITHUB_TOKEN` no longer breaks the core flow. Fix was already sitting uncommitted in the working tree at session start; committed with regression test coverage (`src/lib/github.test.ts`).
+
+### Verified
+- Build PASS: 12 routes, 0 TypeScript errors, exit 0
+- Tests: 58 vitest unit tests passing (up from 55, +3 for the GitHub fallback)
+- GitHub auto-deploy integration is still disconnected for this project (same class of issue as [[project_dashboard_vercel_autodeploy]]) — the push to `origin/main` did not trigger a new Vercel deployment. Manually redeployed via `vercel --prod --yes` (`dpl_6z8QL1AVDcewXU5mTbi6pTV2Txpq`, READY, aliased to readmeforge.veridux.ai)
+- Live: `/`, `/pricing`, `/docs`, `/auth`, `/dashboard` all 200
+
+### Still Blocked (manual action required)
+- `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRO_PRICE_ID` not set in Vercel (values must come from the Paddle dashboard — no Paddle MCP/dashboard access available this session)
+- Paddle checkout not E2E validated end-to-end
+- GitHub → Vercel auto-deploy integration for this project should be reconnected in Vercel project settings (human action) to stop requiring manual `vercel --prod` after every push
+
+---
+
 ## 2026-07-13
 
 ### Fixed
