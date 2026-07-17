@@ -1,31 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchRepoInfo } from "@/lib/github";
 import { generateReadme } from "@/lib/readme-generator";
+import { ANON_HOURLY_LIMIT, checkAnonRateLimit } from "@/lib/rate-limit";
 
 const FREE_TIER_MONTHLY_LIMIT = 5;
-
-// ---------------------------------------------------------------------------
-// Lightweight in-process rate limiter for anonymous (unauthenticated) requests.
-// Limit: 3 requests per IP per hour. Resets automatically via TTL eviction.
-// This is a best-effort guard — it won't survive server restarts or multi-instance
-// deploys, but it stops casual abuse on Vercel's single-region serverless.
-// ---------------------------------------------------------------------------
-const ANON_HOURLY_LIMIT = 3;
-const ANON_WINDOW_MS = 60 * 60 * 1_000; // 1 hour
-
-const anonRateMap = new Map<string, { count: number; resetAt: number }>();
-
-function checkAnonRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = anonRateMap.get(ip);
-  if (!entry || now >= entry.resetAt) {
-    anonRateMap.set(ip, { count: 1, resetAt: now + ANON_WINDOW_MS });
-    return true; // allowed
-  }
-  if (entry.count >= ANON_HOURLY_LIMIT) return false; // blocked
-  entry.count += 1;
-  return true; // allowed
-}
 
 export async function POST(req: NextRequest) {
   let body: unknown;
