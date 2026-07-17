@@ -5,6 +5,25 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-07-17
+
+### Fixed
+- `src/app/api/generate/route.ts` (f4f0b54): the in-process anonymous-IP rate limiter's backing `Map` had no eviction path at all. A comment claimed entries "reset automatically via TTL eviction," but the only thing that happened was an entry getting overwritten if the *same* IP checked in again after its window expired — a one-off visitor's entry sat in the map forever. On a warm, long-lived serverless container (or a long `next dev` session) this is unbounded memory growth. Extracted the limiter into `src/lib/rate-limit.ts` and added a periodic sweep (every 500 checks) that evicts expired entries. Added `src/lib/rate-limit.test.ts` (5 new tests).
+
+### Verified
+- Tests: 63 vitest unit tests passing (up from 58, +5 for the rate-limiter sweep/isolation/reset coverage)
+- Build PASS: 12 routes, 0 TypeScript errors, exit 0 (run twice)
+- GitHub auto-deploy integration is still disconnected for this project (unchanged since 07-13/07-14) — the push to `origin/main` did not trigger a new Vercel deployment. Manually redeployed via `vercel --prod --yes` (`dpl_69F83qKhi7k5e4brzqaR4WAHVDfN`, READY, aliased to readmeforge.veridux.ai)
+- Live: `/`, `/pricing`, `/docs`, `/auth`, `/dashboard` all 200
+- `SUPABASE_SERVICE_ROLE_KEY` fix (07-13) reconfirmed holding
+
+### Still Blocked (manual action required)
+- `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRO_PRICE_ID` not set in Vercel (values must come from the Paddle dashboard — no Paddle MCP/dashboard access available this session)
+- Paddle checkout not E2E validated end-to-end
+- GitHub → Vercel auto-deploy integration for this project should be reconnected in Vercel project settings (human action) — now a multi-week recurring finding
+
+---
+
 ## 2026-07-14
 
 ### Fixed
