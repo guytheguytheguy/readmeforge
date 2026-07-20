@@ -1,52 +1,121 @@
 // ---------------------------------------------------------------------------
-// Lightweight in-process rate limiter for anonymous (unauthenticated) requests
-// to /api/generate. Limit: 3 requests per IP per hour. This is a best-effort
-// guard — it won't survive server restarts or multi-instance deploys, but it
-// stops casual abuse on Vercel's single-region serverless.
+// Lightweight in-process rate limiters for unauthenticated API routes.
+// Best-effort guards — they won't survive server restarts or multi-instance
+// deploys, but they stop casual abuse on Vercel's single-region serverless.
 //
-// Entries are lazily swept every RATE_MAP_SWEEP_INTERVAL checks. Previously
-// the map had no eviction at all — an expired entry only got overwritten if
-// the *same* IP checked in again, so one-off visitors' entries sat in the map
-// forever. On a long-lived warm serverless container (or `next dev`), that's
-// unbounded growth. A periodic sweep bounds memory without adding per-request
-// overhead on the common path.
+// Each limiter's backing Map is lazily swept every `sweepInterval` checks so
+// one-off callers' entries don't sit in memory forever on a long-lived warm
+// serverless container (or a long `next dev` session).
+// ---------------------------------------------------------------------------
+
+interface RateLimiterOptions {
+  limit: number;
+  windowMs: number;
+  sweepInterval?: number;
+}
+
+interface RateLimiterEntry {
+  count: number;
+  resetAt: number;
+}
+
+function createRateLimiter(options: RateLimiterOptions) {
+  const { limit, windowMs, sweepInterval = 500 } = options;
+  const map = new Map<string, RateLimiterEntry>();
+  let checkCount = 0;
+
+  function sweepExpired(now: number): void {
+    for (const [key, entry] of map) {
+      if (now >= entry.resetAt) map.delete(key);
+    }
+  }
+
+  function check(key: string, now: number = Date.now()): boolean {
+    checkCount += 1;
+    if (checkCount % sweepInterval === 0) sweepExpired(now);
+
+    const entry = map.get(key);
+    if (!entry || now >= entry.resetAt) {
+      map.set(key, { count: 1, resetAt: now + windowMs });
+      return true; // allowed
+    }
+    if (entry.count >= limit) return false; // blocked
+    entry.count += 1;
+    return true; // allowed
+  }
+
+  function resetForTests(): void {
+    map.clear();
+    checkCount = 0;
+  }
+
+  function sizeForTests(): number {
+    return map.size;
+  }
+
+  return { check, sweepExpired, resetForTests, sizeForTests };
+}
+
+// ---------------------------------------------------------------------------
+// /api/generate — anonymous (unauthenticated) callers: 3 requests/IP/hour.
 // ---------------------------------------------------------------------------
 
 export const ANON_HOURLY_LIMIT = 3;
 export const ANON_WINDOW_MS = 60 * 60 * 1_000; // 1 hour
-const RATE_MAP_SWEEP_INTERVAL = 500; // sweep expired entries every N checks
 
-const anonRateMap = new Map<string, { count: number; resetAt: number }>();
-let rateLimitCheckCount = 0;
-
-export function sweepExpiredRateLimitEntries(now: number): void {
-  for (const [ip, entry] of anonRateMap) {
-    if (now >= entry.resetAt) anonRateMap.delete(ip);
-  }
-}
+const anonGenerateLimiter = createRateLimiter({
+  limit: ANON_HOURLY_LIMIT,
+  windowMs: ANON_WINDOW_MS,
+});
 
 export function checkAnonRateLimit(ip: string, now: number = Date.now()): boolean {
-  rateLimitCheckCount += 1;
-  if (rateLimitCheckCount % RATE_MAP_SWEEP_INTERVAL === 0) {
-    sweepExpiredRateLimitEntries(now);
-  }
+  return anonGenerateLimiter.check(ip, now);
+}
 
-  const entry = anonRateMap.get(ip);
-  if (!entry || now >= entry.resetAt) {
-    anonRateMap.set(ip, { count: 1, resetAt: now + ANON_WINDOW_MS });
-    return true; // allowed
-  }
-  if (entry.count >= ANON_HOURLY_LIMIT) return false; // blocked
-  entry.count += 1;
-  return true; // allowed
+export function sweepExpiredRateLimitEntries(now: number): void {
+  anonGenerateLimiter.sweepExpired(now);
 }
 
 // Test-only helpers to reset shared module state between test cases.
 export function __resetRateLimitStateForTests(): void {
-  anonRateMap.clear();
-  rateLimitCheckCount = 0;
+  anonGenerateLimiter.resetForTests();
 }
 
 export function __getRateLimitMapSizeForTests(): number {
-  return anonRateMap.size;
+  return anonGenerateLimiter.sizeForTests();
+}
+
+// ---------------------------------------------------------------------------
+// /api/checkout — unauthenticated Paddle checkout-session creation: previously
+// had zero rate limiting at all, unlike /api/generate. Since it's reachable
+// without auth and (once PADDLE_API_KEY is configured) triggers a live call
+// to Paddle's API for an arbitrary attacker-supplied email, an unlimited
+// caller could flood Paddle with checkout-session requests. Limit: 5
+// requests/IP/hour — generous for a real customer trying the upgrade flow
+// a few times, tight enough to stop scripted abuse.
+// ---------------------------------------------------------------------------
+
+export const CHECKOUT_HOURLY_LIMIT = 5;
+export const CHECKOUT_WINDOW_MS = 60 * 60 * 1_000; // 1 hour
+
+const checkoutLimiter = createRateLimiter({
+  limit: CHECKOUT_HOURLY_LIMIT,
+  windowMs: CHECKOUT_WINDOW_MS,
+});
+
+export function checkCheckoutRateLimit(ip: string, now: number = Date.now()): boolean {
+  return checkoutLimiter.check(ip, now);
+}
+
+export function sweepExpiredCheckoutRateLimitEntries(now: number): void {
+  checkoutLimiter.sweepExpired(now);
+}
+
+// Test-only helpers to reset shared module state between test cases.
+export function __resetCheckoutRateLimitStateForTests(): void {
+  checkoutLimiter.resetForTests();
+}
+
+export function __getCheckoutRateLimitMapSizeForTests(): number {
+  return checkoutLimiter.sizeForTests();
 }

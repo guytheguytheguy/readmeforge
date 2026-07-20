@@ -5,6 +5,24 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-07-20
+
+### Fixed
+- `src/app/api/checkout/route.ts`: the Paddle checkout-session endpoint had **no rate limiting at all**, unlike `/api/generate` (3/IP/hour). It's reachable without authentication and, once `PADDLE_API_KEY` is configured, triggers a live call to Paddle's `/transactions` API for an arbitrary attacker-supplied email — an unlimited caller could script a flood of checkout-session-creation requests against Paddle at no cost to themselves. Generalized `src/lib/rate-limit.ts` into a reusable `createRateLimiter()` factory (same sweep-based eviction strategy as the 07-17 generate-limiter fix) and added a second, independent limiter: 5 checkout attempts/IP/hour. 6 new tests (63→69 total).
+
+### Verified
+- Tests: 69 vitest unit tests passing (up from 63)
+- Build PASS: typecheck + `next build` clean, 0 errors
+- Re-confirmed live: `/api/checkout` still returns `{"error":"Paddle is not configured (PADDLE_API_KEY missing)."}` (500) with a valid email — Paddle env vars still unset in Vercel, unchanged
+- Live: `/`, `/pricing` both 200
+
+### Still Blocked (manual action required)
+- `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRO_PRICE_ID` not set in Vercel (values must come from the Paddle dashboard — no Paddle MCP/dashboard access available this session)
+- Paddle checkout not E2E validated end-to-end
+- GitHub → Vercel auto-deploy integration for this project should be reconnected in Vercel project settings (human action) — recurring finding, several weeks running
+
+---
+
 ## 2026-07-17
 
 ### Fixed

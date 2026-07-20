@@ -112,7 +112,9 @@ This gives instant results with zero hallucination risk.
 ## Rate Limiting
 
 - **Authenticated users**: 5 READMEs/month (enforced via Supabase `generations` count)
-- **Anonymous users**: 3 READMEs/hour per IP (in-process `Map` with TTL, implemented 2026-06-25)
+- **Anonymous users (`/api/generate`)**: 3 READMEs/hour per IP (in-process `Map` with periodic sweep eviction, implemented 2026-06-25; eviction bug fixed 2026-07-17)
+- **Checkout (`/api/checkout`)**: 5 attempts/hour per IP (added 2026-07-20 — previously unlimited despite being unauthenticated and calling out to Paddle's live API)
+  - Both limiters share a common factory in `src/lib/rate-limit.ts` with independent buckets per route.
   - Note: best-effort only — won't persist across serverless cold starts or multiple instances
 
 ## Outstanding Gaps

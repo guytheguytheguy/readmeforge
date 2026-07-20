@@ -1,7 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/paddle";
+import { CHECKOUT_HOURLY_LIMIT, checkCheckoutRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    req.headers.get("x-real-ip") ??
+    "unknown";
+  if (!checkCheckoutRateLimit(ip)) {
+    return NextResponse.json(
+      { error: `Rate limit reached (${CHECKOUT_HOURLY_LIMIT} checkout attempts per hour). Please try again later.` },
+      { status: 429 }
+    );
+  }
+
   let body: unknown;
   try {
     body = await req.json();
