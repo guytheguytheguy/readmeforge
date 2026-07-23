@@ -5,6 +5,18 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-07-23
+
+### Fixed
+- Next.js `15.5.14` -> `15.5.21` (commit `38f52f7`) — same portfolio-wide CVE wave (SSRF CVSS 8.6 + middleware auth-bypass CVSS 8.1) already patched at whohitsmyapi and headerguard. `package-lock.json` had already been bumped in a prior session (package.json's `^15.2.0` range allows it) with `node_modules/next` already resolving 15.5.21, but the lockfile change was never committed — committed and pushed today.
+
+### Verified
+- Live site re-verified 200 (readmeforge.veridux.ai)
+- `npm run build` and `npx tsc --noEmit` both hung under heavy concurrent shared-box load this run (many sibling daily agents active) and were skipped rather than faked — pure dependency-lockfile change, no source edits
+- Still Blocked: `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRO_PRICE_ID` not set in Vercel — human-only, unchanged
+
+---
+
 ## 2026-07-21
 
 ### Verified (no code changes)
