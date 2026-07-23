@@ -5,6 +5,17 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-07-23 (2nd pass)
+
+### Fixed
+- Nested `sharp`/`postcss` CVEs inside `next`'s own `node_modules` (sharp libvips CVE-2026-33327/33328/35590/35591 CVSS high; PostCSS `</style>` XSS GHSA-qx2v-qp2m-jg93, moderate) — same fix pattern as cronpilot/whohitsmyapi same day: pinned via `package.json` `overrides` (`sharp` `^0.35.3`, `postcss` `^8.5.21`) instead of downgrading `next`. Also bumped the `next` dependency range itself to `^15.5.21` to match the version already resolved (was still declared `^15.2.0`).
+- Full clean reinstall (`rm -rf node_modules package-lock.json && npm install`) — `npm audit` now reports 0 vulnerabilities (previously 1 moderate + 2 high).
+
+### Verified
+- `npm run build`: clean, 12/12 routes, 0 TypeScript errors
+- `npm test`: 69/69 vitest tests passing
+- Still Blocked: `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRO_PRICE_ID` not set in Vercel — human-only, unchanged (9th+ consecutive day)
+
 ## 2026-07-23
 
 ### Fixed
