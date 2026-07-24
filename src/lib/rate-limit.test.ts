@@ -12,6 +12,12 @@ import {
   sweepExpiredCheckoutRateLimitEntries,
   __resetCheckoutRateLimitStateForTests,
   __getCheckoutRateLimitMapSizeForTests,
+  SUBSCRIBE_HOURLY_LIMIT,
+  SUBSCRIBE_WINDOW_MS,
+  checkSubscribeRateLimit,
+  sweepExpiredSubscribeRateLimitEntries,
+  __resetSubscribeRateLimitStateForTests,
+  __getSubscribeRateLimitMapSizeForTests,
 } from "./rate-limit";
 
 // ---------------------------------------------------------------------------
@@ -149,5 +155,67 @@ describe("checkCheckoutRateLimit", () => {
     expect(checkCheckoutRateLimit("9.9.9.9", now)).toBe(false);
     // Same IP, different (independent) limiter/bucket.
     expect(checkAnonRateLimit("9.9.9.9", now)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkSubscribeRateLimit — in-process rate limiter for /api/subscribe
+// ---------------------------------------------------------------------------
+// Added 2026-07-24 alongside the new /api/subscribe route (email capture had
+// no route at all before this — was 404ing, tracked as a P1 in the
+// per-project prompt). No external API call is involved, but the limiter
+// still bounds scripted abuse of the Supabase insert path.
+
+describe("checkSubscribeRateLimit", () => {
+  beforeEach(() => {
+    __resetSubscribeRateLimitStateForTests();
+  });
+
+  it("allows requests up to the hourly limit", () => {
+    const now = Date.now();
+    for (let i = 0; i < SUBSCRIBE_HOURLY_LIMIT; i++) {
+      expect(checkSubscribeRateLimit("1.2.3.4", now)).toBe(true);
+    }
+  });
+
+  it("blocks requests once the hourly limit is exceeded", () => {
+    const now = Date.now();
+    for (let i = 0; i < SUBSCRIBE_HOURLY_LIMIT; i++) {
+      checkSubscribeRateLimit("1.2.3.4", now);
+    }
+    expect(checkSubscribeRateLimit("1.2.3.4", now)).toBe(false);
+  });
+
+  it("resets the count after the window elapses", () => {
+    const now = Date.now();
+    for (let i = 0; i < SUBSCRIBE_HOURLY_LIMIT; i++) {
+      checkSubscribeRateLimit("1.2.3.4", now);
+    }
+    expect(checkSubscribeRateLimit("1.2.3.4", now)).toBe(false);
+    expect(checkSubscribeRateLimit("1.2.3.4", now + SUBSCRIBE_WINDOW_MS + 1)).toBe(true);
+  });
+
+  it("sweepExpiredSubscribeRateLimitEntries removes only expired entries from the map", () => {
+    const now = Date.now();
+    checkSubscribeRateLimit("1.1.1.1", now);
+    checkSubscribeRateLimit("2.2.2.2", now);
+
+    expect(__getSubscribeRateLimitMapSizeForTests()).toBe(2);
+
+    sweepExpiredSubscribeRateLimitEntries(now + 1);
+    expect(__getSubscribeRateLimitMapSizeForTests()).toBe(2);
+
+    sweepExpiredSubscribeRateLimitEntries(now + SUBSCRIBE_WINDOW_MS + 1);
+    expect(__getSubscribeRateLimitMapSizeForTests()).toBe(0);
+  });
+
+  it("is independent from the /api/checkout rate limiter", () => {
+    __resetCheckoutRateLimitStateForTests();
+    const now = Date.now();
+    for (let i = 0; i < SUBSCRIBE_HOURLY_LIMIT; i++) {
+      checkSubscribeRateLimit("9.9.9.9", now);
+    }
+    expect(checkSubscribeRateLimit("9.9.9.9", now)).toBe(false);
+    expect(checkCheckoutRateLimit("9.9.9.9", now)).toBe(true);
   });
 });

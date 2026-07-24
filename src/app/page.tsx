@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SiteFooter } from "@/components/site-footer";
 
 export default function HomePage() {
   const [repoUrl, setRepoUrl] = useState("");
@@ -211,6 +212,7 @@ export default function HomePage() {
           </div>
         )}
       </main>
+      <SiteFooter />
     </div>
   );
 }

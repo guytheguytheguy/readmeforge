@@ -119,3 +119,34 @@ export function __resetCheckoutRateLimitStateForTests(): void {
 export function __getCheckoutRateLimitMapSizeForTests(): number {
   return checkoutLimiter.sizeForTests();
 }
+
+// ---------------------------------------------------------------------------
+// /api/subscribe — email capture form: 5 requests/IP/hour. Cheap to abuse
+// (no external API call) but still worth bounding so a scripted caller can't
+// hammer the Supabase insert path indefinitely.
+// ---------------------------------------------------------------------------
+
+export const SUBSCRIBE_HOURLY_LIMIT = 5;
+export const SUBSCRIBE_WINDOW_MS = 60 * 60 * 1_000; // 1 hour
+
+const subscribeLimiter = createRateLimiter({
+  limit: SUBSCRIBE_HOURLY_LIMIT,
+  windowMs: SUBSCRIBE_WINDOW_MS,
+});
+
+export function checkSubscribeRateLimit(ip: string, now: number = Date.now()): boolean {
+  return subscribeLimiter.check(ip, now);
+}
+
+export function sweepExpiredSubscribeRateLimitEntries(now: number): void {
+  subscribeLimiter.sweepExpired(now);
+}
+
+// Test-only helpers to reset shared module state between test cases.
+export function __resetSubscribeRateLimitStateForTests(): void {
+  subscribeLimiter.resetForTests();
+}
+
+export function __getSubscribeRateLimitMapSizeForTests(): number {
+  return subscribeLimiter.sizeForTests();
+}
