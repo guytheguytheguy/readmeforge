@@ -5,6 +5,19 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-07-24
+
+### Fixed
+- `/api/subscribe` (email capture) was returning 404 — flagged as a P1 by external QA on 2026-07-23 (previously the same endpoint had been reported as a 500, so the symptom itself had changed). Restored the route (`src/app/api/subscribe/route.ts`), backed by the pre-existing `readmeforge_subscribers` Supabase table (service-role-only RLS, unique `email` column), with input validation (new `src/lib/email.ts`) and a dedicated 5/IP/hour rate limiter built on the same `createRateLimiter()` factory used by `/api/checkout`.
+- Zero cross-promotion links / analytics tracking script on the live page (same 2026-07-23 finding) — added a `SiteFooter` component (`src/components/site-footer.tsx`) with the subscribe form plus links to HeaderGuard/CronPilot/DeployDiff, wired into the homepage; added `@vercel/analytics` (`<Analytics />` in root layout).
+
+### Verified
+- `npm run build`: clean, 13/13 routes, 0 TypeScript errors
+- `npm test`: 79/79 vitest tests passing (10 new subscribe/email tests, 69->79)
+- Vercel GitHub auto-deploy was disconnected again (recurring pattern — see project memory) — the push to `origin/main` (commit `143880b`) did not trigger a new deployment after several minutes, so shipped via manual `vercel --prod`; confirmed `READY` at `143880b` aliased to `readmeforge.veridux.ai`
+- Live-verified: `POST /api/subscribe` with an invalid email now returns `400` (not `404`); homepage footer renders "More from Veridux" with HeaderGuard/CronPilot/DeployDiff links
+- Still Blocked: `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRO_PRICE_ID` not set in Vercel — human-only, unchanged (10th+ consecutive day)
+
 ## 2026-07-23 (2nd pass)
 
 ### Fixed
