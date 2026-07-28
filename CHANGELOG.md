@@ -5,6 +5,39 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-07-28
+
+### Fixed
+- `npm audit` flagged 9 high-severity `brace-expansion` findings (GHSA-mh99-v99m-4gvg,
+  unbounded regex expansion -> OOM DoS), nested under `eslint`/`eslint-config-next`/
+  `@typescript-eslint`'s `minimatch` dependency chain — dev-tooling-only exposure
+  (not in the deployed runtime bundle), same overrides pattern as the 07-23 sharp/postcss
+  fix. Pinned `overrides.brace-expansion: ^5.0.8` (commit `2a40fc9`). `npm audit` now
+  reports 0 vulnerabilities (was 9 high).
+
+### Verified
+- `npm run build`: clean, 13/13 routes, 0 TypeScript errors (`npx tsc --noEmit` also clean)
+- `npx vitest run`: 79/79 tests passing, unchanged
+- Live-verified core flow: `POST /api/generate` against a real public repo
+  (`github.com/vercel/next.js`) returns a real generated README end-to-end; bad-input
+  cases (invalid JSON, missing `repoUrl`, non-GitHub URL) return clean 400/422, not 500
+- `POST /api/checkout` with a valid email still cleanly fails closed with
+  `"Paddle is not configured (PADDLE_API_KEY missing)"` (500) — `PADDLE_API_KEY`,
+  `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRO_PRICE_ID` confirmed still unset in Vercel and
+  absent from `.env.local`, human-only blocker unchanged (15th+ consecutive day)
+- Deploy drift confirmed again: GitHub push to `main` did not trigger a new Vercel
+  deployment (latest auto-triggered deploy was still `143880b` from 07-24, 3 commits
+  behind HEAD) — same recurring auto-deploy disconnection as prior audits. Shipped via
+  manual `vercel --prod`; confirmed `READY` at `2a40fc9` (`dpl_Er4Qs7YcggJgoWvnm78oxXL3XSEc`),
+  aliased to `readmeforge.veridux.ai`, live pages (`/`, `/pricing`, `/dashboard`) all 200
+- Note: this app has never had an `/api/health` route (verified via `git log --all` on
+  the path and the build's route manifest) — a 404 there is expected, not a regression;
+  any daily-prompt assumption that it exists to "confirm the Supabase project" should be
+  corrected. Supabase project ref (`gkkwgypqnvlytpxehojx`) in `.env.local` matches the
+  ACTIVE_HEALTHY project noted in the 07-13 key-mismatch fix, consistent with no drift.
+
+---
+
 ## 2026-07-24
 
 ### Fixed
