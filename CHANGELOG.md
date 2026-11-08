@@ -5,6 +5,19 @@ Dates use YYYY-MM-DD. SHA references are from the monorepo (`apps/microsaas/read
 
 ---
 
+## 2026-11-08
+
+### Fixed
+- `npm audit` reported 16 vulnerabilities incl. 1 critical: Next.js <15.5.24-15.5.27 RCE (Image Optimization,
+  Windows), SSG/ISR cache poisoning and Server Actions DoS. Bumped `next` ^15.5.21 -> ^15.5.29.
+- Refreshed `package.json` overrides for newly published advisories: `sharp` ^0.35.5, `brace-expansion` ^5.0.12,
+  plus new `vite` ^8.3.6 and `source-map-js` ^1.2.2. Next-bundled postcss/nanoid findings cleared as a side effect.
+- Remaining (dev-tooling only, no upstream fix on the 4.x line): `js-yaml` (eslint chain) and moderate
+  `@typescript-eslint`/`vitest` chain. Build clean, 89/89 tests pass.
+- Paddle env var blocker unchanged (`/api/checkout` still 500 "PADDLE_API_KEY missing").
+
+---
+
 ## 2026-07-28
 
 ### Fixed
