@@ -18,7 +18,7 @@ test.describe("ReadMeForge - core flows", () => {
   test("invalid URL shows error message", async ({ page }) => {
     await page.goto("/");
     await page.locator("#repo-url").fill("not-a-valid-url");
-    await page.locator("form").evaluate((f: HTMLFormElement) => {
+    await page.locator("form").filter({ has: page.locator("#repo-url") }).evaluate((f: HTMLFormElement) => {
       // bypass browser URL validation to test our API-level check
       f.querySelector("input")?.setAttribute("type", "text");
     });
@@ -48,9 +48,9 @@ test.describe("ReadMeForge - core flows", () => {
   test("pricing page shows two plans", async ({ page }) => {
     await page.goto("/pricing");
     await expect(page.locator("h1")).toContainText("Pricing");
-    await expect(page.locator("text=Free")).toBeVisible();
-    await expect(page.locator("text=Pro")).toBeVisible();
-    await expect(page.locator("text=$9")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Free", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Pro", exact: true })).toBeVisible();
+    await expect(page.getByText("$9").first()).toBeVisible();
   });
 
   test("pricing page Pro plan has email input and checkout button", async ({ page }) => {
